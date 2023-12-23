@@ -399,6 +399,19 @@ ControlAllocator::Run()
 		}
 	}
 
+	//Carlos. Omnicopter.
+
+	if (_input_rc_sub.update(&rc)){
+		//Change mode fully with channel 10.
+		mode_fully = rc.values[9]>1000;
+		PX4_INFO("FULLY %s", mode_fully?"ACTIVE":"NO ACTIVE");
+	}
+
+	if (mode_fully && _fuerzas_xy_sub.update(&_fuerza_fx_fy)){
+		_thrust_sp(0) = _fuerza_fx_fy.fx;
+		_thrust_sp(1) = _fuerza_fx_fy.fy;
+	}
+
 	if (do_update) {
 		_last_run = now;
 

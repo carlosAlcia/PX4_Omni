@@ -79,6 +79,9 @@
 #include <uORB/topics/vehicle_thrust_setpoint.h>
 #include <uORB/topics/vehicle_status.h>
 #include <uORB/topics/failure_detector_status.h>
+#include <uORB/topics/forcexy.h>
+#include <uORB/topics/input_rc.h>
+
 
 class ControlAllocator : public ModuleBase<ControlAllocator>, public ModuleParams, public px4::ScheduledWorkItem
 {
@@ -112,6 +115,18 @@ public:
 	bool init();
 
 private:
+
+	uORB::Subscription _fuerzas_xy_sub{ORB_ID(fuerza_fx_fy)};
+	forcexy_s _fuerza_fx_fy{};
+
+	//uORB::Subscription _rc_channels_sub{ORB_ID(rc_channels)};
+	//rc_channels_s _rc_channels{};
+
+	uORB::Subscription _input_rc_sub{ORB_ID(input_rc)};
+	input_rc_s rc;
+
+
+	bool mode_fully = false;
 
 	struct ParamHandles {
 		param_t slew_rate_motors[MAX_NUM_MOTORS];

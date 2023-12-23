@@ -161,6 +161,19 @@ MulticopterAttitudeControl::generate_attitude_setpoint(const Quatf &q, float dt,
 		v *= _man_tilt_max / v_norm;
 	}
 
+	//Carlos. Modification for omnicopter.
+	//Send roll and pitch as forces XY and set angles references to 0.
+	//In futures updates set to an offset or a desired value different to 0.
+	if (mode_fully) {
+		_force_xy.timestamp = hrt_absolute_time();
+		_force_xy.fx = v(1);
+		_force_xy.fy = v(0);
+		_to_force_xy.publish(_force_xy);
+		v(0) = 0.0f;
+		v(1) = 0.0f;
+	}
+	//PX4_INFO("%sHOLA for takeoff!%s", PX4_ANSI_COLOR_GREEN, PX4_ANSI_COLOR_RESET);
+
 	Quatf q_sp_rp = AxisAnglef(v(0), v(1), 0.f);
 	// The axis angle can change the yaw as well (noticeable at higher tilt angles).
 	// This is the formula by how much the yaw changes:
@@ -199,6 +212,7 @@ MulticopterAttitudeControl::generate_attitude_setpoint(const Quatf &q, float dt,
 	_last_attitude_setpoint = attitude_setpoint.timestamp;
 }
 
+//This function is executed when omnicopter.
 void
 MulticopterAttitudeControl::Run()
 {
@@ -218,6 +232,11 @@ MulticopterAttitudeControl::Run()
 
 		updateParams();
 		parameters_updated();
+	}
+
+	if (_input_rc_sub.update(&rc)){
+		//Change mode fully with channel 10.
+		mode_fully = rc.values[9]>1000;
 	}
 
 	// run controller on attitude updates

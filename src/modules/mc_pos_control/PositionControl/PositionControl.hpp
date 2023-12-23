@@ -44,6 +44,10 @@
 #include <uORB/topics/trajectory_setpoint.h>
 #include <uORB/topics/vehicle_attitude_setpoint.h>
 #include <uORB/topics/vehicle_local_position_setpoint.h>
+#include <uORB/topics/input_rc.h>
+#include <uORB/Subscription.hpp>
+
+
 
 struct PositionControlStates {
 	matrix::Vector3f position;
@@ -78,6 +82,9 @@ public:
 
 	PositionControl() = default;
 	~PositionControl() = default;
+
+
+
 
 	/**
 	 * Set the position control gains
@@ -184,7 +191,18 @@ public:
 	 */
 	static const trajectory_setpoint_s empty_trajectory_setpoint;
 
+	//Carlos.
+	matrix::Vector3f get_thr_sp(){
+		return _thr_sp;
+	}
+
 private:
+
+	uORB::Subscription _input_rc_sub{ORB_ID(input_rc)};
+	input_rc_s rc;
+
+	bool mode_fully{false};
+
 	// The range limits of the hover thrust configuration/estimate
 	static constexpr float HOVER_THRUST_MIN = 0.05f;
 	static constexpr float HOVER_THRUST_MAX = 0.9f;

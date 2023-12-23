@@ -65,6 +65,7 @@
 #include <uORB/topics/vehicle_land_detected.h>
 #include <uORB/topics/vehicle_local_position.h>
 #include <uORB/topics/vehicle_local_position_setpoint.h>
+#include <uORB/topics/forcexy.h>
 
 using namespace time_literals;
 
@@ -88,6 +89,10 @@ public:
 
 private:
 	void Run() override;
+
+
+	uORB::Publication<forcexy_s> _to_force_xy{ORB_ID(fuerza_fx_fy)};
+	forcexy_s _force_xy{};
 
 	TakeoffHandling _takeoff; /**< state machine and ramp to bring the vehicle off the ground without jumps */
 

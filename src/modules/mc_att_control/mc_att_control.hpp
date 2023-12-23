@@ -57,6 +57,11 @@
 #include <lib/mathlib/math/filter/AlphaFilter.hpp>
 #include <lib/slew_rate/SlewRate.hpp>
 
+#include <uORB/topics/forcexy.h>
+#include <uORB/topics/input_rc.h>
+
+
+
 #include <AttitudeControl.hpp>
 
 using namespace time_literals;
@@ -81,6 +86,9 @@ public:
 
 private:
 	void Run() override;
+
+	uORB::Publication<forcexy_s> _to_force_xy{ORB_ID(fuerza_fx_fy)};
+	forcexy_s _force_xy{};
 
 	/**
 	 * initialize some vectors/matrices from parameters
@@ -137,6 +145,12 @@ private:
 	bool _vtol{false};
 	bool _vtol_tailsitter{false};
 	bool _vtol_in_transition_mode{false};
+
+	//Omnicopter. Carlos.
+	bool mode_fully{false};
+	uORB::Subscription _input_rc_sub{ORB_ID(input_rc)};
+	input_rc_s rc;
+
 
 	uint8_t _quat_reset_counter{0};
 

@@ -532,8 +532,15 @@ void MulticopterPositionControl::Run()
 			_local_pos_sp_pub.publish(local_pos_sp);
 
 			// Publish attitude setpoint output
+			// Carlos. Modified for omnicopter.
 			vehicle_attitude_setpoint_s attitude_setpoint{};
 			_control.getAttitudeSetpoint(attitude_setpoint);
+			matrix::Vector3f thrust_sp = _control.get_thr_sp();
+			_force_xy.timestamp = hrt_absolute_time();
+			_force_xy.fx = thrust_sp(0);
+			_force_xy.fy = thrust_sp(1);
+			_to_force_xy.publish(_force_xy);
+
 			attitude_setpoint.timestamp = hrt_absolute_time();
 			_vehicle_attitude_setpoint_pub.publish(attitude_setpoint);
 

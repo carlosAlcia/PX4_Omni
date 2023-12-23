@@ -256,8 +256,18 @@ void PositionControl::getLocalPositionSetpoint(vehicle_local_position_setpoint_s
 	_thr_sp.copyTo(local_position_setpoint.thrust);
 }
 
+//Modified for omnicopter. Carlos.
 void PositionControl::getAttitudeSetpoint(vehicle_attitude_setpoint_s &attitude_setpoint) const
 {
-	ControlMath::thrustToAttitude(_thr_sp, _yaw_sp, attitude_setpoint);
+	if (_input_rc_sub.update(&rc)){
+		//Change mode fully with channel 10.
+		mode_fully = rc.values[9]>1000;
+	}
+	if (mode_fully) {
+	Vector3f _thrust_no_xy = Vector3f(0,0,_thr_sp(2));
+	ControlMath::thrustToAttitude(_thrust_no_xy, _yaw_sp, attitude_setpoint);
+	} else {
+		ControlMath::thrustToAttitude(_thr_sp, _yaw_sp, attitude_setpoint);
+	}
 	attitude_setpoint.yaw_sp_move_rate = _yawspeed_sp;
 }
