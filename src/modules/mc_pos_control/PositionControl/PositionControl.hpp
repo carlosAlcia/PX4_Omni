@@ -201,7 +201,15 @@ private:
 	uORB::Subscription _input_rc_sub{ORB_ID(input_rc)};
 	input_rc_s rc;
 
+	//mode_fully. Modified with RC channel 10.
+	//If false: fx, fy = 0. Roll and Pitch given by position controller.
+	//If true: behaviour depend on mode_att_command.
 	bool mode_fully{false};
+
+	//mode_att_command. Modified with RC channel 9.
+	//If false: Attitude set point constant. Position set point modified with RC.
+	//If true: Position sp constant, attitude sp modified with RC as rates commands.
+	bool mode_att_command{false};
 
 	// The range limits of the hover thrust configuration/estimate
 	static constexpr float HOVER_THRUST_MIN = 0.05f;

@@ -236,7 +236,8 @@ MulticopterAttitudeControl::Run()
 
 	if (_input_rc_sub.update(&rc)){
 		//Change mode fully with channel 10.
-		mode_fully = rc.values[9]>1000;
+		mode_fully = rc.values[9]>1500;
+		mode_att_command = rc.values[8]>1500;
 	}
 
 	// run controller on attitude updates
@@ -357,6 +358,7 @@ MulticopterAttitudeControl::Run()
 			rates_setpoint.roll = rates_sp(0);
 			rates_setpoint.pitch = rates_sp(1);
 			rates_setpoint.yaw = rates_sp(2);
+
 			_thrust_setpoint_body.copyTo(rates_setpoint.thrust_body);
 			rates_setpoint.timestamp = hrt_absolute_time();
 

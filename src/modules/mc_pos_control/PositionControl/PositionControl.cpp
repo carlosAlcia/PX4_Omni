@@ -109,6 +109,12 @@ bool PositionControl::update(const float dt)
 {
 	bool valid = _inputValid();
 
+	if (_input_rc_sub.update(&rc)){
+		//Change mode fully with channel 10.
+		mode_fully = rc.values[9]>1500;
+		mode_att_command = rc.values[8]>1500;
+	}
+
 	if (valid) {
 		_positionControl();
 		_velocityControl(dt);
@@ -259,13 +265,23 @@ void PositionControl::getLocalPositionSetpoint(vehicle_local_position_setpoint_s
 //Modified for omnicopter. Carlos.
 void PositionControl::getAttitudeSetpoint(vehicle_attitude_setpoint_s &attitude_setpoint) const
 {
-	if (_input_rc_sub.update(&rc)){
-		//Change mode fully with channel 10.
-		mode_fully = rc.values[9]>1000;
-	}
+
 	if (mode_fully) {
-	Vector3f _thrust_no_xy = Vector3f(0,0,_thr_sp(2));
-	ControlMath::thrustToAttitude(_thrust_no_xy, _yaw_sp, attitude_setpoint);
+		if (!mode_att_command) { //Mode position commands:
+			Vector3f _thrust_no_xy = Vector3f(0,0,_thr_sp(2));
+			ControlMath::thrustToAttitude(_thrust_no_xy, _yaw_sp, attitude_setpoint);
+			//Modify attitude_setpoint to include Roll and Pitch offsets.
+			//I can get the quaternion offset message from uorb published when armed and rotate the attitude_setpoint with this quaternion (multiply them)
+
+		} else {  //Mode attitude commands:
+
+			//Do something in the attitude command mode. Maybe modify roll and pitch offsets with the force commands.
+			//Puede ser que en este modo se raye al no cambiar de posicion aun cuando esta pidiendo comandos de fuerza en XY.
+			//Hay que ver si las ordenes del mando las toma como fuerza en XY directamente o modificando la posicion de referencia.
+			//En el primer caso no habrá problema, en el segundo sí. Parece que no habrá problema y que funciona como ArduPilot, según he visto en internet.
+
+
+		}
 	} else {
 		ControlMath::thrustToAttitude(_thr_sp, _yaw_sp, attitude_setpoint);
 	}

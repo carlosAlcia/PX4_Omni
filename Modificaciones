@@ -1,0 +1,11 @@
+He creado un nuevo mensaje OffsetAttitude que tiene de valor Roll y Pitch.
+Este mensaje debe enviarse al armar los motores con los valores de Roll y Pitch actuales.
+Tambien si esta en mode_att_command debe enviarse con el valor anterior mas los rate de roll y pitch deseados por el dt.
+
+Se debe recibir en PositionControl.cpp cuando genera los sp de attitude. Si no está en mode_att_command, debe usar los offset para poner esos angulos como referencia.
+Si esta en att_command_mode, debe modificar los offset segun fx y fy si es posible (comentario de posible fallo que haga que no sea posible en positioncontrol.cpp)
+
+
+# TO DO en simulacion
+
+- Ver si al armar sale el mensajito que dice que se han puesto los offset a tal y tal valores.

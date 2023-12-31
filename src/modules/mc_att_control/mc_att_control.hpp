@@ -59,6 +59,7 @@
 
 #include <uORB/topics/forcexy.h>
 #include <uORB/topics/input_rc.h>
+#include <uORB/topics/offset_attitude.h>
 
 
 
@@ -147,7 +148,24 @@ private:
 	bool _vtol_in_transition_mode{false};
 
 	//Omnicopter. Carlos.
+
+	//mode_fully. Modified with RC channel 10.
+	//If false: fx, fy = 0. Roll and Pitch given by position controller.
+	//If true: behaviour depend on mode_att_command.
 	bool mode_fully{false};
+
+	//mode_att_command. Modified with RC channel 9.
+	//If false: Attitude set point constant. Position set point modified with RC.
+	//If true: Position sp constant, attitude sp modified with RC as rates commands.
+	bool mode_att_command{false};
+
+	//Values used to fly in fully mode with a random orientation. Values set when armed and modified with sticks in mode_att_command.
+	float offset_roll {0.0};
+	float offset_pitch {0.0};
+
+	uORB::Subscription _offset_attitude_sub{ORB_ID(offset_rp)};
+	offset_attitude_s offset_att;
+
 	uORB::Subscription _input_rc_sub{ORB_ID(input_rc)};
 	input_rc_s rc;
 

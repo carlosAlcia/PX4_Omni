@@ -84,6 +84,13 @@
 #include <uORB/topics/vehicle_land_detected.h>
 #include <uORB/topics/vtol_vehicle_status.h>
 
+// Carlos. For omnicopter.
+#include <uORB/topics/offset_attitude.h>
+#include <uORB/topics/vehicle_attitude.h>
+#include <lib/matrix/matrix/math.hpp>
+
+
+
 using math::constrain;
 using systemlib::Hysteresis;
 
@@ -316,6 +323,14 @@ private:
 	uORB::Publication<vehicle_command_s>			_vehicle_command_pub{ORB_ID(vehicle_command)};
 	uORB::Publication<vehicle_control_mode_s>		_vehicle_control_mode_pub{ORB_ID(vehicle_control_mode)};
 	uORB::Publication<vehicle_status_s>			_vehicle_status_pub{ORB_ID(vehicle_status)};
+
+	//Carlos. Omnicopter.
+	uORB::Publication<offset_attitude_s> _offset_att_pub{ORB_ID(offset_rp)};
+	offset_attitude_s _offset_att;
+	uORB::Subscription _att_vehicle_sub{ORB_ID(vehicle_attitude)};
+	vehicle_attitude_s _vehicle_att;
+	//Quatf last_att;
+	matrix::Quatf last_att;
 
 	orb_advert_t _mavlink_log_pub{nullptr};
 

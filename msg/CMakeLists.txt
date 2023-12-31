@@ -240,6 +240,7 @@ set(msg_files
 	Wind.msg
 	YawEstimatorStatus.msg
 	forcexy.msg
+	OffsetAttitude.msg
 )
 list(SORT msg_files)
 

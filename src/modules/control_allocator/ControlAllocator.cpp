@@ -403,7 +403,7 @@ ControlAllocator::Run()
 
 	if (_input_rc_sub.update(&rc)){
 		//Change mode fully with channel 10.
-		mode_fully = rc.values[9]>1000;
+		mode_fully = rc.values[9]>1500;
 		PX4_INFO("FULLY %s", mode_fully?"ACTIVE":"NO ACTIVE");
 	}
 

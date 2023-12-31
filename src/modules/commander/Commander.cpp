@@ -616,6 +616,13 @@ transition_result_t Commander::arm(arm_disarm_reason_t calling_reason, bool run_
 
 	_status_changed = true;
 
+	//Carlos. Omnicopter.
+	//Set values of roll and pitch offsets.
+	_offset_att.timestamp = hrt_absolute_time();
+	last_att.copyTo(_offset_att.q);
+	PX4_INFO("Quaternion offset set to: %1.2f, %1.2f,%1.2f,%1.2f", (double)_offset_att.q[0], (double)_offset_att.q[1], (double)_offset_att.q[2], (double)_offset_att.q[3]);
+	_offset_att_pub.publish(_offset_att);
+
 	return TRANSITION_CHANGED;
 }
 
@@ -1835,6 +1842,14 @@ void Commander::run()
 
 		// handle commands last, as the system needs to be updated to handle them
 		handleCommandsFromModeExecutors();
+
+		//Carlos. Omnicopter.
+		//Update the attitude values if it is not armed.
+		if (!isArmed()){
+			if (_att_vehicle_sub.update(&_vehicle_att)){
+				last_att = matrix::Quatf(_vehicle_att.q);
+			}
+		}
 
 		if (_vehicle_command_sub.updated()) {
 			// got command
