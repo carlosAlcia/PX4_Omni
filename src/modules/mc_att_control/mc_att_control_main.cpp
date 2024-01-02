@@ -118,6 +118,23 @@ MulticopterAttitudeControl::throttle_curve(float throttle_stick_input)
 	return math::min(thrust, _manual_throttle_maximum.getState());
 }
 
+
+void
+MulticopterAttitudeControl::generate_rate_sp_att_command_mode(Quatf &q, float dt){
+	float rate_roll_d = _manual_control_setpoint.roll*dt;
+	float rate_pitch_d = _manual_control_setpoint.pitch*dt;
+	float roll_vec[3]{rate_roll_d,0,0};
+	AxisAnglef roll_rotation(roll_vec);
+	float pitch_vec[3]{0, rate_pitch_d,0};
+	AxisAnglef pitch_rotation(pitch_vec);
+	q.rotate(roll_rotation);
+	q.normalize();
+	q.rotate(pitch_rotation);
+	q.normalize();
+}
+
+
+
 void
 MulticopterAttitudeControl::generate_attitude_setpoint(const Quatf &q, float dt, bool reset_yaw_sp)
 {
@@ -258,9 +275,32 @@ MulticopterAttitudeControl::Run()
 			if (_vehicle_attitude_setpoint_sub.copy(&vehicle_attitude_setpoint)
 			    && (vehicle_attitude_setpoint.timestamp > _last_attitude_setpoint)) {
 
-				_attitude_control.setAttitudeSetpoint(Quatf(vehicle_attitude_setpoint.q_d), vehicle_attitude_setpoint.yaw_sp_move_rate);
-				_thrust_setpoint_body = Vector3f(vehicle_attitude_setpoint.thrust_body);
-				_last_attitude_setpoint = vehicle_attitude_setpoint.timestamp;
+				//Carlos. Modification for omnicopter.
+				Quatf att_sp_with_offset = Quatf(vehicle_attitude_setpoint.q_d);
+				if (mode_fully) {
+
+					if (_offset_attitude_sub.update(&offset_att)) {
+						offset_att_quat = Quatf(offset_att.q);
+					}
+
+					if (mode_att_command){
+						//Change ref with the RC values.
+						generate_rate_sp_att_command_mode(offset_att_quat, 0.01);
+						att_sp_with_offset = offset_att_quat*att_sp_with_offset;
+						att_sp_with_offset.normalize();
+
+					} else {
+						att_sp_with_offset = offset_att_quat*att_sp_with_offset;
+						att_sp_with_offset.normalize();
+					}
+					_attitude_control.setAttitudeSetpoint(att_sp_with_offset, vehicle_attitude_setpoint.yaw_sp_move_rate);
+					_thrust_setpoint_body = Vector3f(vehicle_attitude_setpoint.thrust_body);
+					_last_attitude_setpoint = vehicle_attitude_setpoint.timestamp;
+				} else {
+					_attitude_control.setAttitudeSetpoint(Quatf(vehicle_attitude_setpoint.q_d), vehicle_attitude_setpoint.yaw_sp_move_rate);
+					_thrust_setpoint_body = Vector3f(vehicle_attitude_setpoint.thrust_body);
+					_last_attitude_setpoint = vehicle_attitude_setpoint.timestamp;
+				}
 			}
 		}
 

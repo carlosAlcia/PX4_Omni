@@ -103,6 +103,9 @@ private:
 	 */
 	void generate_attitude_setpoint(const matrix::Quatf &q, float dt, bool reset_yaw_sp);
 
+	//Carlos. Omnicopter:
+	void generate_rate_sp_att_command_mode(matrix::Quatf &q, float dt);
+
 	AttitudeControl _attitude_control; /**< class for attitude control calculations */
 
 	uORB::SubscriptionInterval _parameter_update_sub{ORB_ID(parameter_update), 1_s};
@@ -165,6 +168,7 @@ private:
 
 	uORB::Subscription _offset_attitude_sub{ORB_ID(offset_rp)};
 	offset_attitude_s offset_att;
+	matrix::Quatf offset_att_quat;
 
 	uORB::Subscription _input_rc_sub{ORB_ID(input_rc)};
 	input_rc_s rc;
