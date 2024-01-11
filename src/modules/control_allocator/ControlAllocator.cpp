@@ -405,6 +405,7 @@ ControlAllocator::Run()
 		//Change mode fully with channel 10.
 		mode_fully = rc.values[9]>1500;
 		PX4_INFO("FULLY %s", mode_fully?"ACTIVE":"NO ACTIVE");
+		PX4_INFO("MODE: %s", (rc.values[8]>1500)?"ATT":"POS");
 	}
 
 	if (mode_fully && _fuerzas_xy_sub.update(&_fuerza_fx_fy)){

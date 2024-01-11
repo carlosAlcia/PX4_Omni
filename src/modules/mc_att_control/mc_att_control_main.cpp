@@ -250,7 +250,7 @@ MulticopterAttitudeControl::Run()
 		updateParams();
 		parameters_updated();
 	}
-
+	static short mode_fully_a = -1;
 	if (_input_rc_sub.update(&rc)){
 		//Change mode fully with channel 10.
 		mode_fully = rc.values[9]>1500;
@@ -261,6 +261,14 @@ MulticopterAttitudeControl::Run()
 	vehicle_attitude_s v_att;
 
 	if (_vehicle_attitude_sub.update(&v_att)) {
+		//Update offset if we change from not fully mode to fully mode.
+		if (mode_fully){
+			if (!mode_fully_a) {
+				offset_att_quat = Quatf(v_att.q);
+				PX4_INFO("Set OFFSET to current attitude.");
+			}
+		}
+		mode_fully_a = mode_fully;
 
 		// Guard against too small (< 0.2ms) and too large (> 20ms) dt's.
 		const float dt = math::constrain(((v_att.timestamp_sample - _last_run) * 1e-6f), 0.0002f, 0.02f);
@@ -277,21 +285,29 @@ MulticopterAttitudeControl::Run()
 
 				//Carlos. Modification for omnicopter.
 				Quatf att_sp_with_offset = Quatf(vehicle_attitude_setpoint.q_d);
-				if (mode_fully) {
+				if (_offset_attitude_sub.updated()) {
+					_offset_attitude_sub.copy(&offset_att);
+					offset_att_quat = Quatf(offset_att.q);
+					PX4_INFO("ATT_REC_NEW_OFFSET");
+				}
+				//This was to see if the offset was constant or changing with orientation and it's okey.
+				//PX4_INFO("Q1_offset %1.2f", (double)offset_att_quat(0));
 
-					if (_offset_attitude_sub.update(&offset_att)) {
-						offset_att_quat = Quatf(offset_att.q);
-					}
+
+				if (mode_fully) {
+					//offset_att_quat.setIdentity();
+
+
 
 					if (mode_att_command){
 						//Change ref with the RC values.
-						generate_rate_sp_att_command_mode(offset_att_quat, 0.01);
-						att_sp_with_offset = offset_att_quat*att_sp_with_offset;
-						att_sp_with_offset.normalize();
+						generate_rate_sp_att_command_mode(offset_att_quat, 0.001);
+						//No need to normalize because setAttitudeSetpoint already does it.
+						att_sp_with_offset = offset_att_quat;
 
 					} else {
-						att_sp_with_offset = offset_att_quat*att_sp_with_offset;
-						att_sp_with_offset.normalize();
+						att_sp_with_offset = offset_att_quat;
+
 					}
 					_attitude_control.setAttitudeSetpoint(att_sp_with_offset, vehicle_attitude_setpoint.yaw_sp_move_rate);
 					_thrust_setpoint_body = Vector3f(vehicle_attitude_setpoint.thrust_body);
