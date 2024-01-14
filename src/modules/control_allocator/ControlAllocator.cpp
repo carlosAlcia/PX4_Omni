@@ -411,6 +411,16 @@ ControlAllocator::Run()
 	if (mode_fully && _fuerzas_xy_sub.update(&_fuerza_fx_fy)){
 		_thrust_sp(0) = _fuerza_fx_fy.fx;
 		_thrust_sp(1) = _fuerza_fx_fy.fy;
+
+		_num_control_allocation = 1;
+
+	}
+	if (mode_fully){
+		//Carlos. For Omnicopter. Prueba a girar el vector de thrust
+		if (_att_vehicle_sub.update(&_vehicle_att)){
+			last_att = matrix::Quatf(_vehicle_att.q);
+		}
+		_thrust_sp = last_att.inversed().rotateVector(_thrust_sp);
 	}
 
 	if (do_update) {

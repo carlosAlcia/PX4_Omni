@@ -741,7 +741,7 @@ void Navigator::run()
 				reset_cruising_speed();
 				set_cruising_throttle();
 			}
-		}
+		} //End of handle commands
 
 		/* Check for traffic */
 		check_traffic();

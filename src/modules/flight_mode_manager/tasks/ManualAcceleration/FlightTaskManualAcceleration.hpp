@@ -37,6 +37,8 @@
 #include "StickAccelerationXY.hpp"
 #include "StickYaw.hpp"
 #include <lib/weather_vane/WeatherVane.hpp>
+#include <uORB/Subscription.hpp>
+#include <uORB/topics/input_rc.h>
 
 class FlightTaskManualAcceleration : public FlightTaskManualAltitudeSmoothVel
 {
@@ -49,6 +51,10 @@ public:
 protected:
 	void _ekfResetHandlerPositionXY(const matrix::Vector2f &delta_xy) override;
 	void _ekfResetHandlerVelocityXY(const matrix::Vector2f &delta_vxy) override;
+
+	uORB::Subscription _input_rc_sub{ORB_ID(input_rc)};
+	input_rc_s rc;
+
 
 	StickAccelerationXY _stick_acceleration_xy{this};
 	WeatherVane _weathervane{this}; /**< weathervane library, used to implement a yaw control law that turns the vehicle nose into the wind */

@@ -224,6 +224,7 @@ void FlightModeManager::start_flight_task()
 				_param_mpc_pos_mode.set(4);
 				_param_mpc_pos_mode.commit();
 			}
+			//Enters here when using sticks in positionmode.
 
 			error = switchTask(FlightTaskIndex::ManualAcceleration);
 			break;

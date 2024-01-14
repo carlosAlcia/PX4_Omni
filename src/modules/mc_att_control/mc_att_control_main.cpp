@@ -287,7 +287,8 @@ MulticopterAttitudeControl::Run()
 				Quatf att_sp_with_offset = Quatf(vehicle_attitude_setpoint.q_d);
 				if (_offset_attitude_sub.updated()) {
 					_offset_attitude_sub.copy(&offset_att);
-					offset_att_quat = Quatf(offset_att.q);
+					offset_att_quat = Quatf(offset_att.q); //Antes Quatf(offset_att.q)
+					//offset_att_quat.setIdentity();
 					PX4_INFO("ATT_REC_NEW_OFFSET");
 				}
 				//This was to see if the offset was constant or changing with orientation and it's okey.
@@ -301,12 +302,12 @@ MulticopterAttitudeControl::Run()
 
 					if (mode_att_command){
 						//Change ref with the RC values.
-						generate_rate_sp_att_command_mode(offset_att_quat, 0.001);
+						generate_rate_sp_att_command_mode(offset_att_quat, 0.005);
 						//No need to normalize because setAttitudeSetpoint already does it.
-						att_sp_with_offset = offset_att_quat;
+						att_sp_with_offset = offset_att_quat*att_sp_with_offset;
 
 					} else {
-						att_sp_with_offset = offset_att_quat;
+						//att_sp_with_offset = offset_att_quat;
 
 					}
 					_attitude_control.setAttitudeSetpoint(att_sp_with_offset, vehicle_attitude_setpoint.yaw_sp_move_rate);

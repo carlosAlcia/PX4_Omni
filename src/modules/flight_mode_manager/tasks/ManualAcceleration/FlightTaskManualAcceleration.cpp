@@ -60,9 +60,24 @@ bool FlightTaskManualAcceleration::activate(const trajectory_setpoint_s &last_se
 bool FlightTaskManualAcceleration::update()
 {
 	bool ret = FlightTaskManualAltitudeSmoothVel::update();
+	//Enters when using sticks in position mode. Carlos. Modified for omnicopter.
 
-	_stick_acceleration_xy.generateSetpoints(_sticks.getPitchRollExpo(), _yaw, _yaw_setpoint, _position,
+	static bool att_mode = false;
+	if (_input_rc_sub.update(&rc)){
+		//Change mode fully with channel 10.
+		att_mode = rc.values[8]>1500;
+		if (att_mode) {
+			PX4_INFO("MODE: %s", (rc.values[8]>1500)?"ATT":"POS");
+		}
+	}
+	if (att_mode){
+		_stick_acceleration_xy.generateSetpoints(_sticks.getPitchRollExpo()*0.0f, _yaw, _yaw_setpoint, _position,
 			_velocity_setpoint_feedback.xy(), _deltatime);
+	} else {
+		_stick_acceleration_xy.generateSetpoints(_sticks.getPitchRollExpo(), _yaw, _yaw_setpoint, _position,
+			_velocity_setpoint_feedback.xy(), _deltatime);
+	}
+
 	_stick_acceleration_xy.getSetpoints(_position_setpoint, _velocity_setpoint, _acceleration_setpoint);
 
 	_constraints.want_takeoff = _checkTakeoff();
