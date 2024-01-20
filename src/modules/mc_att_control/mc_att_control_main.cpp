@@ -65,6 +65,7 @@ MulticopterAttitudeControl::MulticopterAttitudeControl(bool vtol) :
 	_manual_throttle_minimum.setSlewRate(0.05f);
 	// Rate of change 50% per second -> 2 seconds to ramp to 100%
 	_manual_throttle_maximum.setSlewRate(0.5f);
+	att_sp_with_offset.identity();
 }
 
 MulticopterAttitudeControl::~MulticopterAttitudeControl()
@@ -122,7 +123,9 @@ MulticopterAttitudeControl::throttle_curve(float throttle_stick_input)
 void
 MulticopterAttitudeControl::generate_rate_sp_att_command_mode(Quatf &q, float dt){
 	float rate_roll_d = _manual_control_setpoint.roll*dt;
+	rate_roll_d = wrap_pi(rate_roll_d);
 	float rate_pitch_d = _manual_control_setpoint.pitch*dt;
+	rate_pitch_d = wrap_pi(rate_pitch_d);
 	float roll_vec[3]{rate_roll_d,0,0};
 	AxisAnglef roll_rotation(roll_vec);
 	float pitch_vec[3]{0, rate_pitch_d,0};
@@ -284,7 +287,8 @@ MulticopterAttitudeControl::Run()
 			    && (vehicle_attitude_setpoint.timestamp > _last_attitude_setpoint)) {
 
 				//Carlos. Modification for omnicopter.
-				Quatf att_sp_with_offset = Quatf(vehicle_attitude_setpoint.q_d);
+				//Quatf att_sp_with_offset = Quatf(vehicle_attitude_setpoint.q_d);
+				Quatf att_ref(1,0,0,0);
 				if (_offset_attitude_sub.updated()) {
 					_offset_attitude_sub.copy(&offset_att);
 					offset_att_quat = Quatf(offset_att.q); //Antes Quatf(offset_att.q)
@@ -302,15 +306,15 @@ MulticopterAttitudeControl::Run()
 
 					if (mode_att_command){
 						//Change ref with the RC values.
-						generate_rate_sp_att_command_mode(offset_att_quat, 0.005);
+						generate_rate_sp_att_command_mode(offset_att_quat, 0.002);
 						//No need to normalize because setAttitudeSetpoint already does it.
-						att_sp_with_offset = offset_att_quat*att_sp_with_offset;
+						att_ref = offset_att_quat*att_sp_with_offset;
 
 					} else {
 						//att_sp_with_offset = offset_att_quat;
 
 					}
-					_attitude_control.setAttitudeSetpoint(att_sp_with_offset, vehicle_attitude_setpoint.yaw_sp_move_rate);
+					_attitude_control.setAttitudeSetpoint(att_ref, vehicle_attitude_setpoint.yaw_sp_move_rate);
 					_thrust_setpoint_body = Vector3f(vehicle_attitude_setpoint.thrust_body);
 					_last_attitude_setpoint = vehicle_attitude_setpoint.timestamp;
 				} else {

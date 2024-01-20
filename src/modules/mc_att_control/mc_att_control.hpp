@@ -105,6 +105,7 @@ private:
 
 	//Carlos. Omnicopter:
 	void generate_rate_sp_att_command_mode(matrix::Quatf &q, float dt);
+	matrix::Quatf att_sp_with_offset;
 
 	AttitudeControl _attitude_control; /**< class for attitude control calculations */
 
