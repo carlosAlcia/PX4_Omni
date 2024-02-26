@@ -157,6 +157,7 @@ private:
 	//If false: fx, fy = 0. Roll and Pitch given by position controller.
 	//If true: behaviour depend on mode_att_command.
 	bool mode_fully{false};
+	int a = 8;
 
 	//mode_att_command. Modified with RC channel 9.
 	//If false: Attitude set point constant. Position set point modified with RC.
