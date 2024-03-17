@@ -63,13 +63,13 @@ bool FlightTaskManualAcceleration::update()
 	//Enters when using sticks in position mode. Carlos. Modified for omnicopter.
 
 	static bool att_mode = false;
-	static bool fully_mode = false;
+	static bool mode_fully = false;
 	if (_input_rc_sub.update(&rc)){
 		//Change mode fully with channel 10.
 		att_mode = rc.values[8]>1500;
-		fully_mode = rc.values[9] > 1500;
+		mode_fully = rc.values[9] > 1500;
 	}
-	if (fully_mode && att_mode){
+	if (mode_fully && att_mode){
 		_stick_acceleration_xy.generateSetpoints(_sticks.getPitchRollExpo()*0.0f, _yaw, _yaw_setpoint, _position,
 			_velocity_setpoint_feedback.xy(), _deltatime);
 	} else {
