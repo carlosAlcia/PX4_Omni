@@ -404,8 +404,11 @@ ControlAllocator::Run()
 	if (_input_rc_sub.update(&rc)){
 		//Change mode fully with channel 10.
 		mode_fully = rc.values[9]>1500;
-		PX4_INFO("FULLY %s", mode_fully?"ACTIVE":"NO ACTIVE");
-		PX4_INFO("MODE: %s", (rc.values[8]>1500)?"ATT":"POS");
+		//PX4_INFO("FULLY %s", mode_fully?"ACTIVE":"NO ACTIVE");
+		mavlink_log_info(&_mavlink_log_pub, "FULLY %s", mode_fully?"ACTIVE":"NO ACTIVE")
+		//PX4_INFO("MODE: %s", (rc.values[8]>1500)?"ATT":"POS");
+		mavlink_log_info(&_mavlink_log_pub, "MODE: %s", (rc.values[8]>1500)?"ATT":"POS")
+
 	}
 
 	if (mode_fully && _fuerzas_xy_sub.update(&_fuerza_fx_fy)){

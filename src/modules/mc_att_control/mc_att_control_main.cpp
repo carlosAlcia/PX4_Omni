@@ -268,7 +268,7 @@ MulticopterAttitudeControl::Run()
 		if (mode_fully){
 			if (!mode_fully_a) {
 				offset_att_quat = Quatf(v_att.q);
-				PX4_INFO("Set OFFSET to current attitude.");
+				mavlink_log_info(&_mavlink_log_pub, "Set OFFSET to current attitude.");
 			}
 		}
 		mode_fully_a = mode_fully;
@@ -287,34 +287,20 @@ MulticopterAttitudeControl::Run()
 			    && (vehicle_attitude_setpoint.timestamp > _last_attitude_setpoint)) {
 
 				//Carlos. Modification for omnicopter.
-				//Quatf att_sp_with_offset = Quatf(vehicle_attitude_setpoint.q_d);
-				Quatf att_ref(1,0,0,0);
 				if (_offset_attitude_sub.updated()) {
 					_offset_attitude_sub.copy(&offset_att);
 					offset_att_quat = Quatf(offset_att.q); //Antes Quatf(offset_att.q)
-					//offset_att_quat.setIdentity();
-					PX4_INFO("ATT_REC_NEW_OFFSET");
+					//PX4_INFO("ATT_REC_NEW_OFFSET");
+					mavlink_log_info(&_mavlink_log_pub, "New offset ATT");
 				}
-				//This was to see if the offset was constant or changing with orientation and it's okey.
-				//PX4_INFO("Q1_offset %1.2f", (double)offset_att_quat(0));
-
 
 				if (mode_fully) {
-					//offset_att_quat.setIdentity();
-
-
-
 					if (mode_att_command){
 						//Change ref with the RC values.
 						generate_rate_sp_att_command_mode(offset_att_quat, 0.002);
 						//No need to normalize because setAttitudeSetpoint already does it.
-						att_ref = offset_att_quat*att_sp_with_offset;
-
-					} else {
-						//att_sp_with_offset = offset_att_quat;
-
 					}
-					_attitude_control.setAttitudeSetpoint(att_ref, vehicle_attitude_setpoint.yaw_sp_move_rate);
+					_attitude_control.setAttitudeSetpoint(offset_att_quat, vehicle_attitude_setpoint.yaw_sp_move_rate);
 					_thrust_setpoint_body = Vector3f(vehicle_attitude_setpoint.thrust_body);
 					_last_attitude_setpoint = vehicle_attitude_setpoint.timestamp;
 				} else {

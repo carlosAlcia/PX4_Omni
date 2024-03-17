@@ -66,9 +66,6 @@ bool FlightTaskManualAcceleration::update()
 	if (_input_rc_sub.update(&rc)){
 		//Change mode fully with channel 10.
 		att_mode = rc.values[8]>1500;
-		if (att_mode) {
-			PX4_INFO("MODE: %s", (rc.values[8]>1500)?"ATT":"POS");
-		}
 	}
 	if (att_mode){
 		_stick_acceleration_xy.generateSetpoints(_sticks.getPitchRollExpo()*0.0f, _yaw, _yaw_setpoint, _position,

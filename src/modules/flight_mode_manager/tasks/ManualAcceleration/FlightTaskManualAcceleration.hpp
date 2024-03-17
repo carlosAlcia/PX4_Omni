@@ -55,7 +55,6 @@ protected:
 	uORB::Subscription _input_rc_sub{ORB_ID(input_rc)};
 	input_rc_s rc;
 
-
 	StickAccelerationXY _stick_acceleration_xy{this};
 	WeatherVane _weathervane{this}; /**< weathervane library, used to implement a yaw control law that turns the vehicle nose into the wind */
 };

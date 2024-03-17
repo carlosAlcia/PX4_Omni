@@ -60,6 +60,7 @@
 #include <uORB/topics/forcexy.h>
 #include <uORB/topics/input_rc.h>
 #include <uORB/topics/offset_attitude.h>
+#include <systemlib/mavlink_log.h>
 
 
 
@@ -106,6 +107,8 @@ private:
 	//Carlos. Omnicopter:
 	void generate_rate_sp_att_command_mode(matrix::Quatf &q, float dt);
 	matrix::Quatf att_sp_with_offset;
+
+	orb_advert_t _mavlink_log_pub{nullptr};
 
 	AttitudeControl _attitude_control; /**< class for attitude control calculations */
 
