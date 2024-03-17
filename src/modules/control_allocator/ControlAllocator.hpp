@@ -82,6 +82,8 @@
 #include <uORB/topics/forcexy.h>
 #include <uORB/topics/input_rc.h>
 #include <uORB/topics/vehicle_attitude.h>
+#include <systemlib/mavlink_log.h>
+
 
 
 class ControlAllocator : public ModuleBase<ControlAllocator>, public ModuleParams, public px4::ScheduledWorkItem
@@ -128,6 +130,7 @@ private:
 
 
 	bool mode_fully = false;
+	orb_advert_t _mavlink_log_pub{nullptr};
 
 	struct ParamHandles {
 		param_t slew_rate_motors[MAX_NUM_MOTORS];
