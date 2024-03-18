@@ -401,13 +401,19 @@ ControlAllocator::Run()
 
 	//Carlos. Omnicopter.
 
+	static bool mode_fully_a = false;
+	static bool mode_att_a = false;
+
 	if (_input_rc_sub.update(&rc)){
 		//Change mode fully with channel 10.
 		mode_fully = rc.values[9]>1500;
 		//PX4_INFO("FULLY %s", mode_fully?"ACTIVE":"NO ACTIVE");
-		mavlink_log_info(&_mavlink_log_pub, "FULLY %s", mode_fully?"ACTIVE":"NO ACTIVE")
+		if (mode_fully_a != mode_fully) mavlink_log_info(&_mavlink_log_pub, "FULLY %s", mode_fully?"ACTIVE":"NO ACTIVE");
+		mode_fully_a = mode_fully;
 		//PX4_INFO("MODE: %s", (rc.values[8]>1500)?"ATT":"POS");
-		mavlink_log_info(&_mavlink_log_pub, "MODE: %s", (rc.values[8]>1500)?"ATT":"POS")
+		bool mode_att = rc.values[8]>1500;
+		if (mode_att != mode_att_a)  mavlink_log_info(&_mavlink_log_pub, "MODE: %s", (mode_att)?"ATT":"POS");
+		mode_att_a = mode_att;
 
 	}
 
